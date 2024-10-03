@@ -4,6 +4,7 @@ import { ChollosController } from './chollos.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Chollos } from './entities/chollo.entity';
 
+
 @Module({
   controllers: [ChollosController],
   providers: [ChollosService],

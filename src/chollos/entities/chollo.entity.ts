@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+
 
 
 @Entity()
@@ -24,18 +25,18 @@ export class Chollos {
 
     @Column('text')
     descripcion: string;
-    //prueba de que git funciona
-    // @CreateDateColumn({
-    //     type: 'timestamp',
-    //     default: () => 'now()',
-    //   })
-    //   createdAt: Date;
+    //prueba de que git
+    @CreateDateColumn({
+        type: 'timestamp',
+        default: () => 'now()',
+      })
+      createdAt: Date;
     
-    // @UpdateDateColumn({
-    //     type: 'timestamp',
-    //     default: () => 'now()',
-    //   })
-    //   updatedAt: Date;
+    @UpdateDateColumn({
+        type: 'timestamp',
+        default: () => 'now()',
+      })
+      updatedAt: Date;
 
     //
     //imagenes:
