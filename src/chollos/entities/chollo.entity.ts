@@ -23,9 +23,11 @@ export class Chollos {
     })
     enlace: string;
 
-    @Column('text')
+    @Column('text', ({
+        nullable: false
+    }))
     descripcion: string;
-    //prueba de que git
+    
     @CreateDateColumn({
         type: 'timestamp',
         default: () => 'now()',

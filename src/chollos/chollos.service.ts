@@ -1,15 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateCholloDto } from './dto/create-chollo.dto';
 import { UpdateCholloDto } from './dto/update-chollo.dto';
+import { Chollos } from './entities/chollo.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ChollosService {
-  create(createCholloDto: CreateCholloDto) {
-    return 'This action adds a new chollo';
+
+
+  constructor(
+    @InjectRepository(Chollos)
+    private readonly cholloRepository: Repository<Chollos>,
+  ) {}
+
+
+  async create(createCholloDto: CreateCholloDto) {
+    
+    try {
+      
+      const chollo = this.cholloRepository.create(createCholloDto);
+      await this.cholloRepository.save(chollo);
+      
+      return chollo;
+      
+    } catch (error) {
+      console.log(error)
+      throw new InternalServerErrorException('Ayuda')
+    }
+    
   }
 
   findAll() {
-    return `This action returns all chollos`;
+    return ;
   }
 
   findOne(id: number) {
