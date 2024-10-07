@@ -19,7 +19,8 @@ export class Chollos {
     precio: number;
 
     @Column({
-        nullable: false
+        nullable: false,
+        unique: true
     })
     enlace: string;
 

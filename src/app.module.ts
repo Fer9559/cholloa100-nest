@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ChollosModule } from './chollos/chollos.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CommonModule } from './common/common.module';
 
 
 
@@ -21,7 +22,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
     }),
 
-    ChollosModule
+    ChollosModule,
+
+    CommonModule
   ],
 })
 export class AppModule { }

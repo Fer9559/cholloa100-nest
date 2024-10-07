@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 import { ChollosService } from './chollos.service';
 import { CreateCholloDto } from './dto/create-chollo.dto';
 import { UpdateCholloDto } from './dto/update-chollo.dto';
+import { query } from 'express';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Controller('chollos')
 export class ChollosController {
@@ -13,22 +15,25 @@ export class ChollosController {
   }
 
   @Get()
-  findAll() {
-    return this.chollosService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    console.log(paginationDto)
+    return this.chollosService.findAll(paginationDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.chollosService.findOne(+id);
+  @Get(':term')
+  findOne(@Param('term') term: string) {
+    return this.chollosService.findOneOrMore(term);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCholloDto: UpdateCholloDto) {
-    return this.chollosService.update(+id, updateCholloDto);
+  update(
+    @Param('id', ParseUUIDPipe) id: string, 
+    @Body() updateCholloDto: UpdateCholloDto) {
+    return this.chollosService.update(id, updateCholloDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.chollosService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id_chollo: string) {
+    return this.chollosService.remove(id_chollo);
   }
 }
