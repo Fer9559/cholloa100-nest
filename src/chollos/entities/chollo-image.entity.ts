@@ -13,7 +13,8 @@ export class CholloImage{
 
   @ManyToOne(
     () => Chollos,
-    (chollo) => chollo.images
+    (chollo) => chollo.images,
+    { onDelete: 'CASCADE'}
   )
   chollo: Chollos
 }

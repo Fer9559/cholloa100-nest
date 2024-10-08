@@ -3,7 +3,7 @@ import { CreateCholloDto } from './dto/create-chollo.dto';
 import { UpdateCholloDto } from './dto/update-chollo.dto';
 import { Chollos } from './entities/chollo.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { validate as isUUID } from 'uuid';
 import { CholloImage } from './entities';
@@ -19,6 +19,7 @@ private readonly logger = new Logger('ChollosService')
     
     @InjectRepository(CholloImage)
     private readonly CholloImageRepository: Repository<CholloImage>,
+    private readonly dataSource: DataSource,
   ) {}
 
 
@@ -92,21 +93,44 @@ private readonly logger = new Logger('ChollosService')
 
 
   async update(id: string, updateCholloDto: UpdateCholloDto) {
+    const { images, ...toUpdate } = updateCholloDto;
+    
     const chollo = await this.cholloRepository.preload({
-      id_chollo: id,
-      ...updateCholloDto,
-      images: [],
-    });
+       id_chollo: id, ...toUpdate });
 
     if (!chollo) throw new NotFoundException(`Chollo con id: ${id} no encontrado`);
     
+    //create query runner (transacción)
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
-    await this.cholloRepository.save(chollo)
-    return chollo;
+      if (images){
+        await queryRunner.manager.delete( CholloImage, { chollo: {id_chollo: id}} );
+
+        chollo.images = images.map( 
+          image => this.CholloImageRepository.create({ url: image})
+        );
+      } 
+
+      await queryRunner.manager.save(chollo);
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+
+     // await this.cholloRepository.save(chollo);
+     //se llama a la funcion findOneOrMorePlain para que me devuelva los datos de las 
+     //imágenes mapeadas como quiero
+      return this.findOneOrMorePlain(id);
 
     } catch (error) {
+
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
+
       this.handleDBExceptions(error);
-    }
+
+    } 
   }
 
 

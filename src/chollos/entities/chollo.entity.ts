@@ -36,14 +36,6 @@ export class Chollos {
         {cascade: true, eager: true}
     )
     images?: CholloImage[];
-
-    // @Column('uuid', ({
-    //     nullable: false
-    // }))
-    // user_id: string;
-
-    // @Column()
-    // imagenes: string;
     
     @CreateDateColumn({
         type: 'timestamp',

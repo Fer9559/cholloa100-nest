@@ -10,6 +10,10 @@ import { Chollos, CholloImage } from './entities';
   providers: [ChollosService],
   imports: [
     TypeOrmModule.forFeature([Chollos, CholloImage])
+  ],
+  exports: [
+    ChollosService,
+    TypeOrmModule,
   ]
 })
 export class ChollosModule {}

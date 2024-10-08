@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ChollosModule } from './chollos/chollos.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommonModule } from './common/common.module';
+import { AuthModule } from './auth/auth.module';
 
 
 
@@ -24,7 +25,9 @@ import { CommonModule } from './common/common.module';
 
     ChollosModule,
 
-    CommonModule
+    CommonModule,
+
+    AuthModule
   ],
 })
 export class AppModule { }
