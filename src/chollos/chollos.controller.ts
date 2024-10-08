@@ -22,7 +22,7 @@ export class ChollosController {
 
   @Get(':term')
   findOne(@Param('term') term: string) {
-    return this.chollosService.findOneOrMore(term);
+    return this.chollosService.findOneOrMorePlain(term);
   }
 
   @Patch(':id')

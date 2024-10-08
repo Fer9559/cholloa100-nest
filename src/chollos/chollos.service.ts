@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { validate as isUUID } from 'uuid';
+import { CholloImage } from './entities';
 
 @Injectable()
 export class ChollosService {
@@ -15,16 +16,23 @@ private readonly logger = new Logger('ChollosService')
   constructor(
     @InjectRepository(Chollos)
     private readonly cholloRepository: Repository<Chollos>,
+    
+    @InjectRepository(CholloImage)
+    private readonly CholloImageRepository: Repository<CholloImage>,
   ) {}
 
 
   async create(createCholloDto: CreateCholloDto) {  
     try {
-      
-      const chollo = this.cholloRepository.create(createCholloDto);
+      const {images = [], ...cholloDetails} = createCholloDto;
+
+      const chollo = this.cholloRepository.create({
+        ...cholloDetails,
+        images: images.map( image => this.CholloImageRepository.create({url: image}))
+      });
       await this.cholloRepository.save(chollo);
       
-      return chollo;
+      return { ...chollo, images};
       
     } catch (error) {
       this.handleDBExceptions(error);
@@ -32,13 +40,20 @@ private readonly logger = new Logger('ChollosService')
   }
 
 
-  findAll(paginationDto: PaginationDto) {
+  async findAll(paginationDto: PaginationDto) {
     const {limit=10, offset=0} = paginationDto;
     
-    return this.cholloRepository.find({
+    const chollos = await this.cholloRepository.find({
       take: limit,
       skip: offset,
-    });
+      relations: {
+        images: true,
+      }
+    })
+    return chollos.map( chollo =>({
+      ...chollo, 
+      images: chollo.images.map( img => img.url)
+    }))
   }
 
 
@@ -55,7 +70,9 @@ private readonly logger = new Logger('ChollosService')
       chollos = await this.cholloRepository.createQueryBuilder('chollo')
       .where('UPPER(chollo.titulo) LIKE :titulo', {
         titulo: `%${term.toUpperCase()}%`
-      }).getMany();
+      })
+      .leftJoinAndSelect('chollo.images','cholloImages')
+      .getMany();
     }
     
     if (chollos.length === 0)
@@ -65,10 +82,20 @@ private readonly logger = new Logger('ChollosService')
   }
 
 
+  async findOneOrMorePlain( term: string ) {
+    const chollos = await this.findOneOrMore( term );
+    return chollos.map(({ images = [], ...rest}) => ({
+      ...rest,
+      images: images.map( image => image.url ),
+    }));
+  }
+
+
   async update(id: string, updateCholloDto: UpdateCholloDto) {
     const chollo = await this.cholloRepository.preload({
       id_chollo: id,
-      ...updateCholloDto
+      ...updateCholloDto,
+      images: [],
     });
 
     if (!chollo) throw new NotFoundException(`Chollo con id: ${id} no encontrado`);

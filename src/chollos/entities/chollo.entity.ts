@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { CholloImage } from "./chollo-image.entity";
 
 
 
@@ -28,6 +29,21 @@ export class Chollos {
         nullable: false
     }))
     descripcion: string;
+
+    @OneToMany(
+        () => CholloImage,
+        (cholloImage) => cholloImage.chollo,
+        {cascade: true, eager: true}
+    )
+    images?: CholloImage[];
+
+    // @Column('uuid', ({
+    //     nullable: false
+    // }))
+    // user_id: string;
+
+    // @Column()
+    // imagenes: string;
     
     @CreateDateColumn({
         type: 'timestamp',

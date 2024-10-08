@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min, MinLength } from "class-validator";
+import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min, MinLength } from "class-validator";
 import { isFloat32Array, isStringObject } from "util/types";
 
 export class CreateCholloDto {
@@ -19,4 +19,9 @@ export class CreateCholloDto {
     @IsString({message: 'El mensaje debe ser un string'})
     @MinLength(3)
     descripcion: string;
+
+    @IsString({each: true})
+    @IsArray()
+    @IsOptional()
+    images?: string[];
 }
