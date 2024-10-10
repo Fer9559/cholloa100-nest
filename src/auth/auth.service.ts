@@ -8,14 +8,19 @@ import { LoginUserDto } from './dto';
 import { CreateUserDto } from './dto/create-user.dto';
 
 import *as bcrypt from 'bcrypt';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { JwtService } from '@nestjs/jwt';
 
 
 @Injectable()
 export class AuthService {
   
   constructor(
+    
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
+    private readonly jwtService: JwtService,
+
   ) {}
   
 
@@ -34,7 +39,10 @@ export class AuthService {
       delete user.password;
 
       //Devolver el Jason Web Token de Acceso
-      return user;
+      return {
+        ...user,
+        token: this.getJwtToken({id_user: user.id_user})
+      };
 
     } catch (error) {
       
@@ -50,7 +58,7 @@ export class AuthService {
 
     const user = await this.userRepository.findOne({
       where: {email},
-      select: {email: true, password: true}
+      select: {email: true, password: true, id_user: true }
     });
 
     if(!user)
@@ -58,9 +66,22 @@ export class AuthService {
 
     if (!bcrypt.compareSync(password, user.password))
       throw new UnauthorizedException('Credenciales incorrectas, por favor vuelva a introducirlas(no coincide la contraseña).');
+    
+    console.log({user})
 
-    return user;
+    return {
+      ...user,
+      token: this.getJwtToken({id_user: user.id_user})
+    };
     //devuelve el JWT
+  }
+
+
+  private getJwtToken(playload: JwtPayload){
+
+    const token = this.jwtService.sign(playload);
+    return token;
+
   }
 
 
