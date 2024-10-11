@@ -6,15 +6,20 @@ import { query } from 'express';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { validRoles } from 'src/auth/interfaces';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { User } from 'src/auth/entities/user.entity';
 
 @Controller('chollos')
 export class ChollosController {
   constructor(private readonly chollosService: ChollosService) {}
 
   @Post()
-  @Auth(validRoles.user)
-  create(@Body() createCholloDto: CreateCholloDto,) {
-    return this.chollosService.create(createCholloDto);
+  @Auth()
+  create(
+    @Body() createCholloDto: CreateCholloDto,
+    @GetUser() user: User,
+  ) {
+    return this.chollosService.create(createCholloDto, user);
   }
 
   @Get()
@@ -32,8 +37,10 @@ export class ChollosController {
   @Auth(validRoles.user)
   update(
     @Param('id', ParseUUIDPipe) id: string, 
-    @Body() updateCholloDto: UpdateCholloDto) {
-    return this.chollosService.update(id, updateCholloDto);
+    @Body() updateCholloDto: UpdateCholloDto,
+    @GetUser() user: User,
+  ) {
+    return this.chollosService.update(id, updateCholloDto, user);
   }
 
   @Delete(':id')

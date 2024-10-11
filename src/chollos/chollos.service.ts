@@ -7,6 +7,7 @@ import { DataSource, Repository } from 'typeorm';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { validate as isUUID } from 'uuid';
 import { CholloImage } from './entities';
+import { User } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class ChollosService {
@@ -23,13 +24,14 @@ private readonly logger = new Logger('ChollosService')
   ) {}
 
 
-  async create(createCholloDto: CreateCholloDto) {  
+  async create(createCholloDto: CreateCholloDto, user: User) {  
     try {
       const {images = [], ...cholloDetails} = createCholloDto;
 
       const chollo = this.cholloRepository.create({
         ...cholloDetails,
-        images: images.map( image => this.CholloImageRepository.create({url: image}))
+        images: images.map( image => this.CholloImageRepository.create({url: image})),
+        user,
       });
       await this.cholloRepository.save(chollo);
       
@@ -92,7 +94,7 @@ private readonly logger = new Logger('ChollosService')
   }
 
 
-  async update(id: string, updateCholloDto: UpdateCholloDto) {
+  async update(id: string, updateCholloDto: UpdateCholloDto, user: User) {
     const { images, ...toUpdate } = updateCholloDto;
     
     const chollo = await this.cholloRepository.preload({
@@ -114,6 +116,7 @@ private readonly logger = new Logger('ChollosService')
         );
       } 
 
+      chollo.user = user;
       await queryRunner.manager.save(chollo);
       await queryRunner.commitTransaction();
       await queryRunner.release();
