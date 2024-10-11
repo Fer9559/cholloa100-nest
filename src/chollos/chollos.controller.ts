@@ -4,13 +4,16 @@ import { CreateCholloDto } from './dto/create-chollo.dto';
 import { UpdateCholloDto } from './dto/update-chollo.dto';
 import { query } from 'express';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { validRoles } from 'src/auth/interfaces';
 
 @Controller('chollos')
 export class ChollosController {
   constructor(private readonly chollosService: ChollosService) {}
 
   @Post()
-  create(@Body() createCholloDto: CreateCholloDto) {
+  @Auth(validRoles.user)
+  create(@Body() createCholloDto: CreateCholloDto,) {
     return this.chollosService.create(createCholloDto);
   }
 
@@ -26,6 +29,7 @@ export class ChollosController {
   }
 
   @Patch(':id')
+  @Auth(validRoles.user)
   update(
     @Param('id', ParseUUIDPipe) id: string, 
     @Body() updateCholloDto: UpdateCholloDto) {
@@ -33,6 +37,7 @@ export class ChollosController {
   }
 
   @Delete(':id')
+  @Auth(validRoles.user)
   remove(@Param('id', ParseUUIDPipe) id_chollo: string) {
     return this.chollosService.remove(id_chollo);
   }

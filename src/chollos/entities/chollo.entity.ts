@@ -1,5 +1,6 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { CholloImage } from "./chollo-image.entity";
+import { User } from "src/auth/entities/user.entity";
 
 
 
@@ -36,6 +37,13 @@ export class Chollos {
         {cascade: true, eager: true}
     )
     images?: CholloImage[];
+
+    @ManyToOne(
+        () => User,
+        (user) => user.chollos,
+        { eager: true}
+    )
+    user: User;
     
     @CreateDateColumn({
         type: 'timestamp',
