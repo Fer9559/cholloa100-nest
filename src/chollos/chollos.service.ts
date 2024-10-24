@@ -11,6 +11,7 @@ import { User } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class ChollosService {
+  [x: string]: any;
 
 private readonly logger = new Logger('ChollosService')
 
@@ -93,6 +94,39 @@ private readonly logger = new Logger('ChollosService')
     }));
   }
 
+
+  async findUserChollos(userId: string, paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    try {
+        // Verificamos que el ID de usuario sea válido
+        if (!isUUID(userId)) {
+            throw new BadRequestException(`El ID de usuario ${userId} no es válido.`);
+        }
+
+        this.logger.log(`Buscando chollos para el usuario ID: ${userId}`);
+
+        const chollos = await this.cholloRepository.find({
+            where: { user: { id_user: userId } }, // Filtrar por ID de usuario
+            relations: ['images'], // Incluimos las imágenes relacionadas
+            take: limit, // Limite para la paginación
+            skip: offset, // Offset para la paginación
+        });
+
+        // Comprobar si se encontraron chollos
+        if (chollos.length === 0) {
+            throw new NotFoundException(`Chollos no encontrados para el usuario con ID: ${userId}`);
+        }
+
+        return chollos.map(chollo => ({
+            ...chollo,
+            images: chollo.images.map(image => image.url), // Retornamos las URLs de las imágenes
+        }));
+
+    } catch (error) {
+        this.handleDBExceptions(error);
+    }
+}
 
   async update(id: string, updateCholloDto: UpdateCholloDto, user: User) {
     const { images, ...toUpdate } = updateCholloDto;

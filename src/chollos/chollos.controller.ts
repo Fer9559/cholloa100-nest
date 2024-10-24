@@ -13,7 +13,7 @@ import { User } from 'src/auth/entities/user.entity';
 export class ChollosController {
   constructor(private readonly chollosService: ChollosService) {}
 
-  @Post()
+  @Post('create')
   @Auth()
   create(
     @Body() createCholloDto: CreateCholloDto,
@@ -22,7 +22,7 @@ export class ChollosController {
     return this.chollosService.create(createCholloDto, user);
   }
 
-  @Get()
+  @Get('list-all')
   findAll(@Query() paginationDto: PaginationDto) {
     console.log(paginationDto)
     return this.chollosService.findAll(paginationDto);
@@ -33,7 +33,13 @@ export class ChollosController {
     return this.chollosService.findOneOrMorePlain(term);
   }
 
-  @Patch(':id')
+  @Get('user-chollos/:id')
+@Auth()  // Protegemos la ruta, permitiendo solo a usuarios autenticados acceder
+async getUserChollos(@Param('id') id: string, @Query() paginationDto: PaginationDto) {
+    return this.chollosService.findUserChollos(id, paginationDto);
+}
+
+  @Patch('update-chollo/:id')
   @Auth(validRoles.user)
   update(
     @Param('id', ParseUUIDPipe) id: string, 

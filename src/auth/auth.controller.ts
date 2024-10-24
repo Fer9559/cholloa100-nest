@@ -70,4 +70,13 @@ export class AuthController {
   }
 }
 
+@Get('check-token')
+@RoleProtected( validRoles.superUser, validRoles.admin, validRoles.user)
+@UseGuards( AuthGuard(), UserRoleGuard )
+  checkToken(
+    @GetUser() user: User
+  ) {
+    return this.authService.checkToken(user);
+  }
+
 }
