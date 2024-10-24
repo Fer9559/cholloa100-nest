@@ -49,7 +49,7 @@ async getUserChollos(@Param('id') id: string, @Query() paginationDto: Pagination
     return this.chollosService.update(id, updateCholloDto, user);
   }
 
-  @Delete(':id')
+  @Delete('delete-chollo/:id')
   @Auth(validRoles.user)
   remove(@Param('id', ParseUUIDPipe) id_chollo: string) {
     return this.chollosService.remove(id_chollo);
