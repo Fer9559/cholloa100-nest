@@ -28,19 +28,19 @@ export class ChollosController {
     return this.chollosService.findAll(paginationDto);
   }
 
-  @Get(':term')
+  @Get('filter-by-title/:term')
   findOne(@Param('term') term: string) {
     return this.chollosService.findOneOrMorePlain(term);
   }
 
   @Get('user-chollos/:id')
-@Auth()  // Protegemos la ruta, permitiendo solo a usuarios autenticados acceder
-async getUserChollos(@Param('id') id: string, @Query() paginationDto: PaginationDto) {
+  @Auth()  // Protegemos la ruta, permitiendo solo a usuarios autenticados acceder
+  async getUserChollos(@Param('id') id: string, @Query() paginationDto: PaginationDto) {
     return this.chollosService.findUserChollos(id, paginationDto);
-}
+  }
 
   @Patch('update-chollo/:id')
-  @Auth(validRoles.user)
+  @Auth()
   update(
     @Param('id', ParseUUIDPipe) id: string, 
     @Body() updateCholloDto: UpdateCholloDto,
@@ -50,7 +50,7 @@ async getUserChollos(@Param('id') id: string, @Query() paginationDto: Pagination
   }
 
   @Delete('delete-chollo/:id')
-  @Auth(validRoles.user)
+  @Auth()
   remove(@Param('id', ParseUUIDPipe) id_chollo: string) {
     return this.chollosService.remove(id_chollo);
   }

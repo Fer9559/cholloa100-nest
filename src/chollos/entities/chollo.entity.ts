@@ -57,9 +57,4 @@ export class Chollos {
       })
       updatedAt: Date;
 
-    //
-    //imagenes:
-
-
-
 }
